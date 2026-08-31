@@ -6,7 +6,7 @@ import uuid
 from pathlib import Path
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, Depends, status
-from groq import RateLimitError as GroqRateLimitError
+from openai import RateLimitError as OpenAIRateLimitError
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -130,7 +130,7 @@ async def text_turn(
             session.financial_profile,
             session.messages,
         )
-    except GroqRateLimitError:
+    except OpenAIRateLimitError:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="The advisor is a little busy right now — please wait a moment and try again.",
@@ -165,7 +165,7 @@ async def text_turn_stream(
             session.financial_profile,
             session.messages,
         )
-    except GroqRateLimitError:
+    except OpenAIRateLimitError:
         async def _rate_limit_event():
             yield f"data: {_json.dumps({'type': 'error', 'text': 'The advisor is a little busy — please wait a moment and try again.'})}\n\n"
         return StreamingResponse(_rate_limit_event(), media_type="text/event-stream",
@@ -196,3 +196,21 @@ async def text_turn_stream(
 def get_profile(session_id: str, db: Session = Depends(get_db)):
     session = _get_or_create_session(session_id, db)
     return session.financial_profile
+
+
+@router.get("/sessions/{session_id}/messages")
+def get_messages(session_id: str, db: Session = Depends(get_db)):
+    session = _get_or_create_session(session_id, db)
+    return {"messages": session.messages or []}
+
+
+@router.post("/sessions/{session_id}/reset")
+def reset_session(session_id: str, db: Session = Depends(get_db)):
+    """Clear chat history and remembered profile data, keeping the same session id."""
+    session = _get_or_create_session(session_id, db)
+    session.financial_profile = default_profile(session.user_id)
+    session.messages = []
+    flag_modified(session, "financial_profile")
+    flag_modified(session, "messages")
+    db.commit()
+    return {"session_id": session.id, "profile": session.financial_profile}

@@ -1,236 +1,459 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FinPal — a money advisor built for Indian students</title>
-<meta name="description" content="FinPal is a voice-first money advisor for Indian students. Every rupee figure comes from a deterministic Python calculator, never from a language model's guess.">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>FinPal — Voice-first money advisor for students</title>
+<meta name="description" content="FinPal talks through your allowance, rent, mess bills, BNPL apps and loans, then turns the conversation into a real budget, risk flags and a savings plan — no sign-up, no guesswork." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:          #F5F6FA;
+    --card-bg:     #FFFFFF;
+    --border:      #ECEEF3;
+    --border2:     #F2F3F7;
+    --text:        #14181F;
+    --muted:       #8A93A6;
+    --muted2:      #B4BAC7;
+
+    --accent:       #2F6FED;
+    --accent-dark:  #1B4FC4;
+    --accent-light: #EAF1FF;
+
+    --green:        #22C55E;
+    --green-light:  #E9FBF0;
+    --red:          #EF4444;
+    --red-light:    #FEEBEC;
+    --amber:        #F59E0B;
+    --amber-light:  #FFF6E5;
+
+    --shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.05);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+
+    --ff: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  [data-theme="dark"] {
+    --bg:          #0E1015;
+    --card-bg:     #181B22;
+    --border:      #262A33;
+    --border2:     #20232B;
+    --text:        #EFF1F5;
+    --muted:       #8A93A6;
+    --muted2:      #5A6070;
+
+    --accent:       #F97316;
+    --accent-dark:  #C2570A;
+    --accent-light: rgba(249,115,22,0.14);
+
+    --green-light:  rgba(34,197,94,0.14);
+    --red-light:    rgba(239,68,68,0.14);
+    --amber-light:  rgba(245,158,11,0.14);
+
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.25);
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--ff);
+    -webkit-font-smoothing: antialiased;
+    transition: background .2s, color .2s;
+  }
+  a { color: inherit; }
+  button { font-family: inherit; cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  img, svg { display: block; }
+
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+  /* ─── HEADER ─── */
+  .site-header {
+    position: sticky; top: 0; z-index: 30;
+    background: var(--card-bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .site-header .wrap {
+    display: flex; align-items: center; gap: 20px;
+    padding: 16px 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand-bars { display: flex; align-items: flex-end; gap: 2px; height: 20px; }
+  .brand-bars span { display: block; width: 4px; border-radius: 2px; background: var(--accent); }
+  .brand-bars span:nth-child(1) { height: 9px; }
+  .brand-bars span:nth-child(2) { height: 16px; }
+  .brand-bars span:nth-child(3) { height: 20px; }
+  .brand-bars span:nth-child(4) { height: 12px; }
+  .brand-bars span:nth-child(5) { height: 7px; }
+  .brand-name { font-size: 1.1rem; font-weight: 800; letter-spacing: -0.01em; }
+
+  .main-nav { display: flex; align-items: center; gap: 4px; margin-left: 8px; }
+  .main-nav a {
+    text-decoration: none; color: var(--muted); font-size: 0.84rem; font-weight: 600;
+    padding: 8px 12px; border-radius: var(--radius-sm); transition: background .15s, color .15s;
+  }
+  .main-nav a:hover { background: var(--bg); color: var(--text); }
+
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  .theme-btn {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid var(--border); background: var(--card-bg);
+    display: flex; align-items: center; justify-content: center; font-size: 1rem;
+  }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 10px 18px; border-radius: var(--radius-sm);
+    font-size: 0.84rem; font-weight: 700; border: 1px solid transparent;
+    text-decoration: none; white-space: nowrap; transition: background .15s, border-color .15s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-outline { background: var(--card-bg); color: var(--accent); border-color: var(--accent-light); }
+  .btn-outline:hover { background: var(--accent-light); }
+  .btn-ghost { background: var(--bg); color: var(--text); border-color: var(--border); }
+  .btn-ghost:hover { background: var(--border2); }
+  .btn-lg { padding: 13px 24px; font-size: 0.92rem; }
+
+  /* ─── HERO ─── */
+  .hero { padding: 72px 0 56px; }
+  .hero .wrap { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--accent); background: var(--accent-light);
+    border-radius: 999px; padding: 6px 12px; margin-bottom: 18px;
+  }
+  .hero h1 { font-size: clamp(2rem, 3.6vw, 2.9rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.12; margin-bottom: 16px; }
+  .hero h1 .hl { color: var(--accent); }
+  .hero p.lede { font-size: 1rem; color: var(--muted); line-height: 1.65; max-width: 46ch; margin-bottom: 26px; }
+  .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; }
+  .hero-note { font-size: 0.78rem; color: var(--muted2); }
+
+  .trust-row { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 30px; }
+  .trust-item { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; font-weight: 600; color: var(--muted); }
+  .trust-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+  /* ─── HERO SNAPSHOT CARD ─── */
+  .snap-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 22px;
+  }
+  .snap-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .snap-title { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  .snap-badge { font-size: 0.68rem; font-weight: 700; color: var(--green); background: var(--green-light); padding: 3px 10px; border-radius: 999px; }
+  .snap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .snap-stat { background: var(--bg); border-radius: var(--radius-md); padding: 14px; }
+  .snap-stat-label { font-size: 0.72rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
+  .snap-stat-value { font-size: 1.35rem; font-weight: 800; letter-spacing: -0.01em; }
+  .snap-stat-value.good { color: var(--green); }
+  .snap-stat-value.warn { color: var(--amber); }
+  .snap-bar-row { margin-bottom: 12px; }
+  .snap-bar-row:last-child { margin-bottom: 0; }
+  .snap-bar-head { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+  .snap-bar-track { height: 7px; background: var(--bg); border-radius: 99px; overflow: hidden; }
+  .snap-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); }
+  .snap-bar-fill.warn { background: var(--amber); }
+
+  /* ─── SECTION SHARED ─── */
+  .section { padding: 56px 0; }
+  .section-head { text-align: center; max-width: 640px; margin: 0 auto 40px; }
+  .section-eyebrow { font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+  .section-title { font-size: clamp(1.5rem, 2.6vw, 2rem); font-weight: 800; letter-spacing: -0.015em; margin-bottom: 12px; }
+  .section-sub { font-size: 0.92rem; color: var(--muted); line-height: 1.6; }
+  .section.alt { background: var(--card-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+  /* ─── FEATURES ─── */
+  .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+  .feature-card {
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    box-shadow: var(--shadow); padding: 24px;
+  }
+  .feature-icon {
+    width: 42px; height: 42px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center; font-size: 1.25rem;
+    margin-bottom: 16px;
+  }
+  .feature-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+
+  /* ─── HOW IT WORKS ─── */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; counter-reset: step; }
+  .step { position: relative; padding: 26px 22px 22px; background: var(--bg); border: 1px solid var(--border2); border-radius: var(--radius-lg); }
+  .step-num {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.86rem;
+    margin-bottom: 14px;
+  }
+  .step h3 { font-size: 0.94rem; font-weight: 700; margin-bottom: 6px; }
+  .step p { font-size: 0.82rem; color: var(--muted); line-height: 1.6; }
+
+  /* ─── STATS STRIP ─── */
+  .stats-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .stat-block { text-align: center; padding: 18px; }
+  .stat-block .num { font-size: 1.9rem; font-weight: 800; color: var(--accent); letter-spacing: -0.02em; }
+  .stat-block .lbl { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  /* ─── CTA BANNER ─── */
+  .cta-banner {
+    background: linear-gradient(160deg, var(--accent) 0%, var(--accent-dark) 100%);
+    border-radius: var(--radius-lg); padding: 48px 40px; text-align: center; color: #fff;
+    box-shadow: var(--shadow);
+  }
+  .cta-banner h2 { font-size: clamp(1.4rem, 2.4vw, 1.9rem); font-weight: 800; letter-spacing: -0.015em; margin-bottom: 12px; }
+  .cta-banner p { font-size: 0.92rem; opacity: 0.92; max-width: 46ch; margin: 0 auto 24px; line-height: 1.6; }
+  .cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .cta-banner .btn-primary { background: #fff; color: var(--accent-dark); }
+  .cta-banner .btn-primary:hover { background: #f0f4ff; }
+  .cta-banner .btn-outline { background: transparent; color: #fff; border-color: rgba(255,255,255,0.4); }
+  .cta-banner .btn-outline:hover { background: rgba(255,255,255,0.12); }
+
+  /* ─── FOOTER ─── */
+  .site-footer { border-top: 1px solid var(--border); padding: 32px 0; }
+  .footer-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
+  .footer-brand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 0.95rem; }
+  .footer-links { display: flex; gap: 18px; }
+  .footer-links a { font-size: 0.8rem; color: var(--muted); text-decoration: none; font-weight: 600; }
+  .footer-links a:hover { color: var(--text); }
+  .disclaimer { text-align: center; font-size: 0.72rem; color: var(--muted2); margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border2); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 980px) {
+    .hero .wrap { grid-template-columns: 1fr; }
+    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+    .steps { grid-template-columns: 1fr; }
+    .stats-strip { grid-template-columns: repeat(2, 1fr); }
+    .main-nav { display: none; }
+  }
+  @media (max-width: 640px) {
+    .feature-grid { grid-template-columns: 1fr; }
+    .snap-grid { grid-template-columns: 1fr 1fr; }
+    .hero { padding: 44px 0 36px; }
+    .cta-banner { padding: 36px 20px; }
+    .footer-row { flex-direction: column; text-align: center; }
+  }
+</style>
 </head>
 <body>
 
+<!-- ═══════════════ HEADER ═══════════════ -->
 <header class="site-header">
   <div class="wrap">
-    <a class="brand" href="index.html">Fin<span>Pal</span></a>
-    <nav class="nav" aria-label="Primary">
-      <a class="btn small" href="app.html">Talk to the advisor</a>
-      <a class="btn small secondary" href="dashboard.html">Open dashboard</a>
+    <a href="index.html" class="brand">
+      <div class="brand-bars"><span></span><span></span><span></span><span></span><span></span></div>
+      <span class="brand-name">FinPal</span>
+    </a>
+    <nav class="main-nav">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#faq">FAQ</a>
     </nav>
+    <div class="header-right">
+      <button class="theme-btn" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">&#127769;</button>
+      <a href="dashboard.html" class="btn btn-ghost">Dashboard</a>
+      <a href="app.html" class="btn btn-primary">Talk to FinPal</a>
+    </div>
   </div>
 </header>
 
 <main>
 
-  <!-- ============ SNAPSHOT-FIRST HERO ============ -->
-  <section class="section" aria-labelledby="hero-title">
-    <div class="wrap stack">
-      <span class="eyebrow">Built for students in India</span>
-      <h1 id="hero-title">Your money, in one honest snapshot</h1>
-      <p class="lede">
-        FinPal talks through your allowance, rent, mess bills, BNPL apps and study loans —
-        then shows you where every rupee actually lands. Answers come from real calculators,
-        not from a chatbot guessing at your numbers.
-      </p>
-
-      <div class="snapshot" role="group" aria-label="Example monthly snapshot">
-        <h2 class="small" style="font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-muted);font-size:12px;">
-          Example snapshot
-        </h2>
-        <div class="snapshot-grid mt">
-          <div class="metric">
-            <span class="metric-label">Money in</span>
-            <span class="metric-value">₹14,000</span>
-            <span class="metric-note">Family support + tutoring</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Money out</span>
-            <span class="metric-value">₹11,450</span>
-            <span class="metric-note">82% of what comes in</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Left over</span>
-            <span class="metric-value good">₹2,550</span>
-            <span class="metric-note">Before anything is saved</span>
-          </div>
-          <div class="metric">
-            <span class="metric-label">Safety net</span>
-            <span class="metric-value warn">1.4 mo</span>
-            <span class="metric-note">Target for a student: 6 months</span>
-          </div>
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">&#10024; Built for students in India</span>
+        <h1>Your money, explained in <span class="hl">one honest conversation</span></h1>
+        <p class="lede">
+          Talk through your allowance, rent, mess bills, BNPL apps and study loans with FinPal.
+          Every rupee figure you see comes back from a deterministic calculator — never a
+          language model guessing at your numbers.
+        </p>
+        <div class="hero-actions">
+          <a href="app.html" class="btn btn-primary btn-lg">&#127908; Start a conversation</a>
+          <a href="#how-it-works" class="btn btn-outline btn-lg">See how it works</a>
+        </div>
+        <p class="hero-note">No sign-up required. Nothing is shared with a bank. Your session lives in the link.</p>
+        <div class="trust-row">
+          <div class="trust-item"><span class="trust-dot"></span>Voice + text chat</div>
+          <div class="trust-item"><span class="trust-dot"></span>Real budget math</div>
+          <div class="trust-item"><span class="trust-dot"></span>Private by default</div>
         </div>
       </div>
 
-      <div class="btn-row mt">
-        <a class="btn" href="app.html">Start a conversation</a>
-        <a class="btn secondary" href="#how-it-works">See how it works</a>
-      </div>
-      <p class="small muted">No sign-up. Nothing is shared with a bank. Your session lives in the link.</p>
-    </div>
-  </section>
-
-  <!-- ============ BUDGET PROGRESS ============ -->
-  <section class="section" aria-labelledby="budget-title">
-    <div class="wrap stack">
-      <h2 id="budget-title">Where the month actually goes</h2>
-      <p class="lede">
-        FinPal maps your spending onto a 50-30-20 split adapted for hostel life —
-        so “needs” means rent, mess and commute, not a template built for a salaried adult.
-      </p>
-
-      <div class="card" style="width:100%;max-width:720px;">
-        <div class="bar-row">
-          <div class="bar-head">
-            <span class="bar-label">Needs — rent, mess, commute</span>
-            <span class="bar-nums">₹7,000 / ₹7,000</span>
-          </div>
-          <div class="bar-track"><div class="bar-fill" style="width:50%"></div><div class="bar-target" style="left:50%"></div></div>
-          <span class="bar-status">On target at 50% of money in</span>
+      <div class="snap-card">
+        <div class="snap-head">
+          <span class="snap-title">Example snapshot</span>
+          <span class="snap-badge">Live from chat</span>
         </div>
-
-        <div class="bar-row">
-          <div class="bar-head">
-            <span class="bar-label">Wants — subscriptions, BNPL, going out</span>
-            <span class="bar-nums">₹4,450 / ₹4,200</span>
+        <div class="snap-grid">
+          <div class="snap-stat">
+            <div class="snap-stat-label">Money in</div>
+            <div class="snap-stat-value">&#8377;14,000</div>
           </div>
-          <div class="bar-track"><div class="bar-fill warn" style="width:32%"></div><div class="bar-target" style="left:30%"></div></div>
-          <span class="bar-status">32% — ₹250 over the guideline</span>
+          <div class="snap-stat">
+            <div class="snap-stat-label">Left over</div>
+            <div class="snap-stat-value good">&#8377;2,550</div>
+          </div>
         </div>
-
-        <div class="bar-row">
-          <div class="bar-head">
-            <span class="bar-label">Saved or repaid</span>
-            <span class="bar-nums">₹2,550 / ₹2,800</span>
-          </div>
-          <div class="bar-track"><div class="bar-fill mint" style="width:18%"></div><div class="bar-target" style="left:20%"></div></div>
-          <span class="bar-status">18% — close, ₹250 short of 20%</span>
+        <div class="snap-bar-row">
+          <div class="snap-bar-head"><span>Needs — rent, mess, commute</span><span>50%</span></div>
+          <div class="snap-bar-track"><div class="snap-bar-fill" style="width:50%"></div></div>
+        </div>
+        <div class="snap-bar-row">
+          <div class="snap-bar-head"><span>Wants — subs, BNPL, going out</span><span>32%</span></div>
+          <div class="snap-bar-track"><div class="snap-bar-fill warn" style="width:32%"></div></div>
+        </div>
+        <div class="snap-bar-row">
+          <div class="snap-bar-head"><span>Savings — building the buffer</span><span>18%</span></div>
+          <div class="snap-bar-track"><div class="snap-bar-fill" style="width:18%"></div></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ STUDENT-FINANCE BENTO ============ -->
-  <section class="section" id="how-it-works" aria-labelledby="bento-title">
-    <div class="wrap stack">
-      <h2 id="bento-title">Ten calculators, written in Python</h2>
-      <p class="lede">
-        Every number FinPal says out loud is produced by a deterministic function in the backend.
-        The language model decides what to ask you — it never does the arithmetic.
-      </p>
-
-      <div class="bento mt" style="width:100%">
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">🏠</span>
-          <h3>Hostel, PG and rent</h3>
-          <p>Separates what your family pays directly from what leaves your own hands, so the budget reflects reality.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">💳</span>
-          <h3>BNPL trap check</h3>
-          <p>Counts your pay-later apps, the monthly total and any missed payments, then scores how close you are to trouble.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">🛟</span>
-          <h3>Emergency fund target</h3>
-          <p>Sizes a realistic cushion against your essential spend — 3, 6 or 12 months depending on how steady your income is.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">📉</span>
-          <h3>Debt payoff order</h3>
-          <p>Ranks education loans, card balances and family borrowing by interest rate, so repayments go where they cost most.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">📈</span>
-          <h3>SIP projection</h3>
-          <p>Compounds a monthly SIP to graduation month by month, at rates you can question, with the assumptions stated.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">📱</span>
-          <h3>Subscription audit</h3>
-          <p>Adds up the small recurring charges — streaming, storage, gym — and shows the annual figure nobody quotes you.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">🧮</span>
-          <h3>EMI and instrument comparison</h3>
-          <p>Works out EMIs and puts FDs, RDs, index funds and PPF side by side in plain rupees.</p>
-        </article>
-        <article class="card">
-          <span class="card-icon" aria-hidden="true">🎯</span>
-          <h3>FI number and priorities</h3>
-          <p>Answers “what should I do first?” with an ordered list — cushion, high-interest debt, then investing.</p>
-        </article>
-      </div>
+  <!-- ═══════════════ STATS STRIP ═══════════════ -->
+  <section class="section alt" style="padding: 32px 0;">
+    <div class="wrap stats-strip">
+      <div class="stat-block"><div class="num">50/30/20</div><div class="lbl">Hostel-adapted budget split</div></div>
+      <div class="stat-block"><div class="num">12%</div><div class="lbl">Assumed long-term return for projections</div></div>
+      <div class="stat-block"><div class="num">0</div><div class="lbl">Bank accounts ever connected</div></div>
+      <div class="stat-block"><div class="num">24/7</div><div class="lbl">FinPal is ready when you are</div></div>
     </div>
   </section>
 
-  <!-- ============ ADVISOR PREVIEW ============ -->
-  <section class="section" aria-labelledby="preview-title">
-    <div class="wrap stack">
-      <h2 id="preview-title">It sounds like a conversation, not a form</h2>
-      <p class="lede">Speak or type. FinPal remembers what you have already told it and never asks twice.</p>
+  <!-- ═══════════════ FEATURES ═══════════════ -->
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">What FinPal does</div>
+        <div class="section-title">Everything a student budget needs, in one place</div>
+        <div class="section-sub">Talk naturally — FinPal fills in a real financial picture behind the scenes and turns it into a dashboard you can act on.</div>
+      </div>
 
-      <div class="card" style="width:100%;max-width:640px">
-        <div class="msg">
-          <span class="msg-who">You</span>
-          <span class="msg-body">I get ₹14,000 from home and make about ₹3,000 tutoring, but it's gone by the 20th.</span>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--accent-light);color:var(--accent)">&#127908;</div>
+          <h3>Voice-first advisor</h3>
+          <p>Hold the mic and talk like you would to a friend. FinPal listens, replies out loud, and keeps a full transcript you can revisit anytime.</p>
         </div>
-        <div class="msg mt-s">
-          <span class="msg-who">FinPal</span>
-          <span class="msg-body">That is ₹17,000 in. Before we look at the leak — how much of your rent or hostel fee do you pay yourself, and how much goes directly from your family?</span>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--green-light);color:var(--green)">&#128202;</div>
+          <h3>Live budget dashboard</h3>
+          <p>Every answer updates a visual snapshot — spending by category, income allocation, fixed vs. variable costs, all in real time.</p>
         </div>
-        <div class="msg mt-s">
-          <span class="msg-who">You</span>
-          <span class="msg-body">Hostel is paid by them. I pay ₹2,200 for food outside and around ₹900 on Simpl and LazyPay.</span>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--red-light);color:var(--red)">&#9888;&#65039;</div>
+          <h3>BNPL &amp; debt risk flags</h3>
+          <p>FinPal watches for missed payments, stacked buy-now-pay-later apps and high-interest debt, and tells you what to fix first.</p>
         </div>
-        <div class="msg mt-s">
-          <span class="msg-who">FinPal</span>
-          <span class="msg-body">Noted. Two pay-later apps at ₹900 a month is 5% of your income — not dangerous yet, but it is the first thing to clear if a month goes wrong.</span>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--amber-light);color:var(--amber)">&#128274;</div>
+          <h3>Emergency fund tracking</h3>
+          <p>Sees how many months of essentials your savings actually cover, and sets a target based on how stable your income is.</p>
         </div>
-        <div class="btn-row mt">
-          <a class="btn" href="app.html">Try it yourself</a>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--accent-light);color:var(--accent)">&#128200;</div>
+          <h3>Savings projection</h3>
+          <p>Turns your monthly surplus into a graduation-day corpus estimate, assuming a realistic 12% p.a. index-fund return.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" style="background:var(--green-light);color:var(--green)">&#127919;</div>
+          <h3>Goals &amp; savings tracker</h3>
+          <p>Mention a goal in conversation — a laptop, a trip, an emergency cushion — and FinPal keeps it visible on your dashboard.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ FINAL CTA ============ -->
-  <section class="section" aria-labelledby="cta-title">
-    <div class="wrap stack">
-      <h2 id="cta-title">Find out what your month really looks like</h2>
-      <p class="lede">
-        One conversation is usually enough for a first snapshot. Keep the link and the dashboard
-        stays with your session.
-      </p>
-      <div class="btn-row">
-        <a class="btn" href="app.html">Talk to FinPal</a>
-        <a class="btn secondary" href="dashboard.html">Open the dashboard</a>
+  <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+  <section class="section alt" id="how-it-works">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="section-eyebrow">How it works</div>
+        <div class="section-title">Three steps from chat to clarity</div>
+        <div class="section-sub">No forms, no spreadsheets — just a conversation that builds your financial picture as you go.</div>
       </div>
-      <p class="small muted lede">
-        FinPal is an educational tool for students in India. It is not a licensed financial adviser,
-        and it does not recommend specific securities or products to buy.
-      </p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Start talking</h3>
+          <p>Open a session and tell FinPal about your income, rent, mess bills and any apps or loans you use — by voice or text.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>FinPal does the math</h3>
+          <p>A deterministic calculator — not a guess — turns what you say into a categorized budget, risk flags and priority actions.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>See your dashboard</h3>
+          <p>Open your personal snapshot: spending charts, savings projections, and the one thing you should fix next.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════ CTA ═══════════════ -->
+  <section class="section" id="faq">
+    <div class="wrap">
+      <div class="cta-banner">
+        <h2>Ready to see where your money actually goes?</h2>
+        <p>It takes a few minutes of conversation to build your first snapshot — no account, no bank link, no spreadsheet.</p>
+        <div class="cta-actions">
+          <a href="app.html" class="btn btn-primary btn-lg">&#127908; Start a conversation</a>
+          <a href="dashboard.html" class="btn btn-outline btn-lg">View sample dashboard</a>
+        </div>
+      </div>
     </div>
   </section>
 
 </main>
 
+<!-- ═══════════════ FOOTER ═══════════════ -->
 <footer class="site-footer">
   <div class="wrap">
-    <p class="small">FinPal · Deterministic calculations, plain answers · Built for Indian students</p>
+    <div class="footer-row">
+      <div class="footer-brand">
+        <div class="brand-bars"><span></span><span></span><span></span><span></span><span></span></div>
+        FinPal
+      </div>
+      <div class="footer-links">
+        <a href="app.html">Talk to FinPal</a>
+        <a href="dashboard.html">Dashboard</a>
+        <a href="#features">Features</a>
+      </div>
+    </div>
+    <div class="disclaimer">
+      FinPal provides educational guidance, not personalised financial advice. Figures shown are illustrative.
+      Returns shown (12% p.a.) are historical index fund averages and are not guaranteed. · FinPal
+    </div>
   </div>
 </footer>
 
-<script src="api.js"></script>
 <script>
-  // Carry an existing session through the navigation links, if the visitor
-  // arrived here from the advisor or dashboard.
-  (function () {
-    var sid = window.FinPal.sessionFromQuery();
-    if (!sid) return;
-    Array.prototype.forEach.call(document.querySelectorAll('a[href="app.html"], a[href="dashboard.html"]'), function (a) {
-      a.href = window.FinPal.linkWithSession(a.getAttribute('href'), sid);
+  (function initTheme() {
+    const saved = localStorage.getItem('finpal-theme');
+    const btn = document.getElementById('theme-toggle');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    btn.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('finpal-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('finpal-theme', 'dark');
+      }
     });
   })();
 </script>

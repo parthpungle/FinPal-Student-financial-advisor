@@ -4,45 +4,78 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>FinPal — Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #090C07;
-      --surface: #111509;
-      --surface2: #182212;
-      --border: rgba(138,155,115,0.15);
-      --accent: #F97316;
-      --accent-dim: rgba(249,115,22,0.15);
-      --accent-g: #4ADE80;
-      --accent-g-dim: rgba(74,222,128,0.15);
-      --user-bubble: rgba(249,115,22,0.18);
-      --user-border: rgba(249,115,22,0.25);
-      --advisor-bubble: rgba(24,34,18,0.9);
-      --text: #EFF3EA;
-      --text-muted: #7A876A;
-      --danger: #ef4444;
-      --warn: #f59e0b;
-      --fd: 'Syne', system-ui, sans-serif;
-      --fb: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --bg:          #F5F6FA;
+      --card-bg:     #FFFFFF;
+      --border:      #ECEEF3;
+      --border2:     #F2F3F7;
+      --text:        #14181F;
+      --muted:       #8A93A6;
+      --muted2:      #B4BAC7;
+
+      --accent:       #2F6FED;
+      --accent-dark:  #1B4FC4;
+      --accent-light: #EAF1FF;
+
+      --green:        #22C55E;
+      --green-light:  #E9FBF0;
+      --red:          #EF4444;
+      --red-light:    #FEEBEC;
+      --amber:        #F59E0B;
+      --amber-light:  #FFF6E5;
+
+      --shadow: 0 1px 2px rgba(16,24,40,.04), 0 1px 3px rgba(16,24,40,.05);
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+
+      --ff: 'Plus Jakarta Sans', system-ui, sans-serif;
     }
 
-    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap');
+    [data-theme="dark"] {
+      --bg:          #0E1015;
+      --card-bg:     #181B22;
+      --border:      #262A33;
+      --border2:     #20232B;
+      --text:        #EFF1F5;
+      --muted:       #8A93A6;
+      --muted2:      #5A6070;
+
+      --accent:       #F97316;
+      --accent-dark:  #C2570A;
+      --accent-light: rgba(249,115,22,0.14);
+
+      --green-light:  rgba(34,197,94,0.14);
+      --red-light:    rgba(239,68,68,0.14);
+      --amber-light:  rgba(245,158,11,0.14);
+
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 2px 8px rgba(0,0,0,.25);
+    }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--fb), -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--ff), -apple-system, BlinkMacSystemFont, sans-serif;
       height: 100vh;
       display: flex;
       flex-direction: column;
       -webkit-font-smoothing: antialiased;
+      transition: background .2s, color .2s;
     }
 
+    button { font-family: inherit; cursor: pointer; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
     header {
-      background: var(--surface);
+      background: var(--card-bg);
       border-bottom: 1px solid var(--border);
-      padding: 12px 24px;
+      padding: 14px 24px;
       display: flex;
       align-items: center;
       gap: 12px;
@@ -54,23 +87,23 @@
       align-items: center;
       gap: 6px;
       text-decoration: none;
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 0.8rem;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      transition: color 0.2s, border-color 0.2s;
-      font-family: var(--fd, system-ui);
+      border-radius: var(--radius-sm);
+      transition: color 0.15s, border-color 0.15s, background .15s;
       font-weight: 600;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.01em;
     }
-    .header-back:hover { color: var(--text); border-color: rgba(138,155,115,0.3); }
+    .header-back:hover { color: var(--text); background: var(--bg); }
 
     .header-logo {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-left: 4px;
+      text-decoration: none;
     }
     .header-logo-mark {
       display: flex;
@@ -89,42 +122,66 @@
     .header-logo-mark span:nth-child(3) { height: 18px; }
     .header-logo-mark span:nth-child(4) { height: 11px; }
     .header-logo-mark span:nth-child(5) { height: 6px; }
-    .header-brand { font-family: var(--fd, system-ui); font-size: 1rem; font-weight: 700; color: var(--text); }
+    .header-brand { font-size: 1rem; font-weight: 800; color: var(--text); letter-spacing: -0.01em; }
+
+    .header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+    .theme-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--card-bg);
+      display: flex; align-items: center; justify-content: center; font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+    .theme-btn:hover { background: var(--bg); }
 
     .dashboard-btn {
-      margin-left: auto;
       display: flex;
       align-items: center;
       gap: 6px;
       text-decoration: none;
       color: var(--accent);
-      font-size: 0.78rem;
-      font-weight: 600;
-      font-family: var(--fd, system-ui);
-      padding: 5px 13px;
-      border: 1px solid rgba(249,115,22,0.35);
-      border-radius: 6px;
-      transition: background 0.2s, border-color 0.2s;
-      letter-spacing: 0.02em;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border: 1px solid var(--accent-light);
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, border-color 0.15s;
     }
-    .dashboard-btn:hover { background: var(--accent-dim); border-color: rgba(249,115,22,0.6); }
+    .dashboard-btn:hover { background: var(--accent-light); }
+
+    .clear-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card-bg);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .clear-btn:hover { background: var(--red-light); border-color: var(--red-light); color: var(--red); }
 
     .phase-badge {
-      margin-left: 10px;
       font-size: 0.7rem;
-      font-weight: 600;
-      background: var(--accent-g-dim);
-      color: var(--accent-g);
-      padding: 3px 10px;
+      font-weight: 700;
+      background: var(--green-light);
+      color: var(--green);
+      padding: 4px 11px;
       border-radius: 999px;
       text-transform: capitalize;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
     }
 
     .layout {
       display: flex;
       flex: 1;
       overflow: hidden;
+      gap: 16px;
+      padding: 16px;
+      background: var(--bg);
     }
 
     /* ── Transcript ── */
@@ -132,17 +189,21 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid var(--border);
       min-width: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
     }
 
     .transcript {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 16px;
+      padding: 24px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
       scroll-behavior: smooth;
     }
 
@@ -161,11 +222,11 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 0.7rem; font-weight: 700;
     }
-    .avatar.user { background: var(--user-bubble); border: 1px solid var(--user-border); color: var(--accent); }
-    .avatar.advisor { background: var(--accent-g-dim); color: var(--accent-g); font-family: var(--fd, system-ui); }
+    .avatar.user { background: var(--accent-light); border: 1px solid var(--accent-light); color: var(--accent); }
+    .avatar.advisor { background: var(--green-light); color: var(--green); }
 
     .bubble {
-      padding: 10px 14px;
+      padding: 11px 15px;
       border-radius: 16px;
       font-size: 0.88rem;
       line-height: 1.55;
@@ -173,60 +234,60 @@
       word-break: break-word;
     }
     .bubble-row.user .bubble {
-      background: var(--user-bubble);
-      border: 1px solid var(--user-border);
+      background: var(--accent);
+      color: #fff;
       border-bottom-right-radius: 4px;
     }
     .bubble-row.advisor .bubble {
-      background: var(--advisor-bubble);
-      border: 1px solid var(--border);
+      background: var(--bg);
+      border: 1px solid var(--border2);
       border-bottom-left-radius: 4px;
     }
 
     /* ── Controls ── */
     .controls {
       border-top: 1px solid var(--border);
-      padding: 14px 16px;
+      padding: 16px 20px;
       display: flex;
       gap: 10px;
       align-items: center;
       flex-shrink: 0;
-      background: var(--surface);
+      background: var(--card-bg);
     }
 
     #text-input {
       flex: 1;
-      background: var(--surface2);
+      background: var(--bg);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       color: var(--text);
-      padding: 10px 14px;
+      padding: 11px 15px;
       font-size: 0.88rem;
-      font-family: var(--fb, system-ui);
+      font-family: inherit;
       outline: none;
+      transition: border-color .15s;
     }
     #text-input:focus { border-color: var(--accent); }
-    #text-input::placeholder { color: var(--text-muted); }
+    #text-input::placeholder { color: var(--muted2); }
 
     #send-btn {
       background: var(--accent);
       border: none;
-      border-radius: 8px;
+      border-radius: var(--radius-md);
       color: #fff;
-      padding: 10px 18px;
+      padding: 11px 20px;
       cursor: pointer;
       font-size: 0.85rem;
-      font-weight: 600;
-      font-family: var(--fd, system-ui);
+      font-weight: 700;
       white-space: nowrap;
-      transition: opacity 0.2s;
+      transition: background 0.15s;
     }
-    #send-btn:hover { opacity: 0.88; }
+    #send-btn:hover { background: var(--accent-dark); }
 
     #mic-btn {
       width: 48px; height: 48px; border-radius: 50%;
       border: 1px solid var(--border);
-      background: var(--surface2);
+      background: var(--bg);
       color: var(--text);
       font-size: 1.2rem;
       cursor: pointer;
@@ -236,59 +297,64 @@
       user-select: none;
     }
     #mic-btn.recording {
-      background: var(--danger);
-      border-color: var(--danger);
-      box-shadow: 0 0 0 6px rgba(239,68,68,0.2);
+      background: var(--red);
+      border-color: var(--red);
+      box-shadow: 0 0 0 6px var(--red-light);
       animation: pulse-mic 1s infinite;
     }
     #mic-btn.processing {
-      background: var(--warn);
-      border-color: var(--warn);
+      background: var(--amber);
+      border-color: var(--amber);
       cursor: not-allowed;
     }
     #mic-btn.speaking {
-      background: var(--accent-g-dim);
-      border-color: var(--accent-g);
+      background: var(--green-light);
+      border-color: var(--green);
     }
 
     @keyframes pulse-mic {
-      0%, 100% { box-shadow: 0 0 0 6px rgba(239,68,68,0.2); }
-      50%       { box-shadow: 0 0 0 12px rgba(239,68,68,0.08); }
+      0%, 100% { box-shadow: 0 0 0 6px var(--red-light); }
+      50%       { box-shadow: 0 0 0 12px var(--red-light); }
     }
 
     #status-label {
       font-size: 0.73rem;
-      color: var(--text-muted);
+      color: var(--muted);
+      font-weight: 600;
       min-width: 70px;
       text-align: center;
     }
 
     /* ── Profile panel ── */
     .profile-col {
-      width: 280px;
+      width: 290px;
       flex-shrink: 0;
       overflow-y: auto;
-      padding: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
     }
 
     .profile-col h2 {
       font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--muted2);
+      font-weight: 700;
     }
 
-    .profile-section { display: flex; flex-direction: column; gap: 4px; }
+    .profile-section { display: flex; flex-direction: column; gap: 6px; }
     .profile-section-title {
-      font-size: 0.7rem;
-      font-weight: 600;
+      font-size: 0.68rem;
+      font-weight: 700;
       color: var(--accent);
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.06em;
       margin-bottom: 2px;
     }
 
@@ -298,15 +364,15 @@
       align-items: baseline;
       gap: 8px;
       font-size: 0.8rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      background: var(--surface2);
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
     }
-    .profile-key { color: var(--text-muted); flex-shrink: 0; }
-    .profile-val { color: var(--text); text-align: right; font-weight: 500; }
+    .profile-key { color: var(--muted); flex-shrink: 0; font-weight: 600; }
+    .profile-val { color: var(--text); text-align: right; font-weight: 700; }
 
     .empty-profile {
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 0.82rem;
       text-align: center;
       padding: 20px 0;
@@ -314,7 +380,7 @@
 
     .typing-dots {
       display: inline-block;
-      color: var(--text-muted);
+      color: var(--muted);
       animation: blink 1.2s step-start infinite;
     }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
@@ -326,6 +392,7 @@
     @media (max-width: 640px) {
       .profile-col { display: none; }
       .header-back span { display: none; }
+      .layout { padding: 10px; gap: 10px; }
     }
   </style>
 </head>
@@ -336,17 +403,24 @@
     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     <span>Home</span>
   </a>
-  <div class="header-logo">
+  <a href="index.html" class="header-logo">
     <div class="header-logo-mark">
       <span></span><span></span><span></span><span></span><span></span>
     </div>
     <span class="header-brand">FinPal</span>
-  </div>
-  <a href="#" class="dashboard-btn" id="dashboard-btn" style="display:none">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    <span>View Plan</span>
   </a>
   <span class="phase-badge" id="phase-badge">starting</span>
+  <div class="header-right">
+    <button class="theme-btn" id="theme-toggle" title="Toggle dark mode" aria-label="Toggle dark mode">&#127769;</button>
+    <a href="#" class="dashboard-btn" id="dashboard-btn" style="display:none">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>View Plan</span>
+    </a>
+    <button class="clear-btn" id="clear-chat-btn" title="Clear chat history and memory">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2m3 0-1 14a2 2 0 01-2 2H7a2 2 0 01-2-2L4 6"/></svg>
+      <span>Clear Chat</span>
+    </button>
+  </div>
 </header>
 
 <div class="layout">
@@ -379,6 +453,22 @@
 </div>
 
 <script>
+(function initTheme() {
+  const saved = localStorage.getItem('finpal-theme');
+  const btn = document.getElementById('theme-toggle');
+  if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+  btn.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('finpal-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('finpal-theme', 'dark');
+    }
+  });
+})();
+
 const API = 'http://localhost:8000';
 
 let sessionId = null;
@@ -388,25 +478,57 @@ let isRecording = false;
 let isBusy = false;
 let currentAudio = null;
 
+const SESSION_STORAGE_KEY = 'finpal-session-id';
+
+async function tryResume(sid) {
+  // Verify the session actually exists server-side before trusting it.
+  const check = await fetch(`${API}/api/sessions/${sid}/profile`).catch(() => null);
+  if (!check || !check.ok) return false;
+  sessionId = sid;
+  const profile = await check.json().catch(() => null);
+  if (profile) updateProfile(profile);
+  await replayHistory(sid);
+  return true;
+}
+
 async function initSession() {
-  const existing = new URLSearchParams(location.search).get('session');
-  if (existing) {
-    // Resume: verify the session actually exists server-side before trusting it.
-    const check = await fetch(`${API}/api/sessions/${existing}/profile`).catch(() => null);
-    if (check && check.ok) {
-      sessionId = existing;
-      const profile = await check.json().catch(() => null);
-      if (profile) updateProfile(profile);
-      await replayHistory(existing);
+  // A session id in the URL (e.g. arriving from the dashboard) takes
+  // priority; otherwise fall back to the last session stored in this
+  // browser so a plain reload/revisit doesn't silently start a new,
+  // disconnected session and orphan the one the dashboard is showing.
+  const fromUrl = new URLSearchParams(location.search).get('session');
+  const fromStorage = localStorage.getItem(SESSION_STORAGE_KEY);
+
+  for (const candidate of [fromUrl, fromStorage]) {
+    if (!candidate) continue;
+    if (await tryResume(candidate)) {
+      localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
       wireDashboardBtn();
       return;
     }
   }
+
   const r = await fetch(`${API}/api/sessions`, { method: 'POST' });
   const d = await r.json();
   sessionId = d.session_id;
+  localStorage.setItem(SESSION_STORAGE_KEY, sessionId);
   wireDashboardBtn();
 }
+
+async function clearChat() {
+  if (!sessionId) return;
+  if (!confirm('Clear chat history and everything FinPal remembers about you? This starts a fresh conversation.')) return;
+  const r = await fetch(`${API}/api/sessions/${sessionId}/reset`, { method: 'POST' }).catch(() => null);
+  if (!r || !r.ok) { alert('Could not clear chat. Is the backend running?'); return; }
+  const d = await r.json();
+  document.getElementById('transcript').innerHTML = '';
+  addBubble('advisor', "Hi! I'm your FinPal advisor. Hold the mic button and tell me a bit about yourself — we'll start with where you study and how you're managing money right now.");
+  updateProfile(d.profile);
+  document.getElementById('phase-badge').textContent = 'starting';
+  setStatus('ready');
+}
+
+document.getElementById('clear-chat-btn').addEventListener('click', clearChat);
 
 async function replayHistory(sid) {
   const res = await fetch(`${API}/api/sessions/${sid}/messages`).catch(() => null);
@@ -664,12 +786,15 @@ function updateProfile(p) {
     profileRow('Year of study', ac.year_of_study != null ? String(ac.year_of_study) : null),
     profileRow('Graduation year', ac.expected_graduation_year != null ? String(ac.expected_graduation_year) : null),
   ]);
-  const moneyIn = profileSection('Money In', [
+  const totalIncome = [mi.family_support_amount, mi.gig_income_amount, mi.scholarship_stipend_amount]
+    .reduce((sum, v) => sum + (typeof v === 'number' ? v : (v && typeof v.amount === 'number' ? v.amount : 0)), 0);
+  const moneyIn = profileSection('Income Sources', [
     profileRow('Family support', mi.family_support_amount),
     profileRow('Regularity', mi.family_support_regularity),
     profileRow('Gig income', mi.gig_income_amount),
-    profileRow('Scholarship', mi.scholarship_stipend_amount),
+    profileRow('Scholarship/Stipend', mi.scholarship_stipend_amount),
     profileRow('Stability', mi.income_stability),
+    totalIncome > 0 ? profileRow('Total income', totalIncome) : '',
   ]);
   const expenses = profileSection('Expenses', [
     profileRow('Housing', ex.housing?.amount),
@@ -678,6 +803,7 @@ function updateProfile(p) {
     profileRow('Food (extra)', ex.food_beyond_mess),
     profileRow('Subscriptions', ex.subscriptions),
     profileRow('Discretionary', ex.discretionary),
+    profileRow('BNPL spend', ex.bnpl_usage?.typical_monthly_amount),
   ]);
   const safetyNet = profileSection('Safety Net', [
     profileRow('Savings', sn.personal_savings_amount),

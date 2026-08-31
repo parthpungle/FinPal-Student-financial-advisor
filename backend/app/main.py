@@ -39,6 +39,10 @@ if os.path.isdir(_FRONTEND):
     def index_page():
         return FileResponse(os.path.join(_FRONTEND, "index.html"))
 
+    @app.get("/index.html", include_in_schema=False)
+    def landing_page():
+        return FileResponse(os.path.join(_FRONTEND, "index.html"))
+
     @app.get("/app.html", include_in_schema=False)
     def advisor_page():
         return FileResponse(os.path.join(_FRONTEND, "app.html"))

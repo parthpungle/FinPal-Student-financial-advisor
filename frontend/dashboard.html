@@ -578,7 +578,7 @@
 
   <!-- ═══════════════ SIDEBAR ═══════════════ -->
   <aside class="sidebar">
-    <a href="index.html" class="sb-logo">
+    <a href="dashboard.html" class="sb-logo">
       <div class="sb-logo-bars"><span></span><span></span><span></span><span></span><span></span></div>
       <span class="sb-logo-name">FinPal</span>
     </a>
@@ -612,7 +612,7 @@
           <span class="switch-track"></span>
         </label>
       </div>
-      <a href="index.html" id="nav-logout" class="sb-item"><span class="sb-icon">&#8630;</span>Logout</a>
+      <a href="dashboard.html" id="nav-logout" class="sb-item"><span class="sb-icon">&#8630;</span>Logout</a>
     </div>
   </aside>
 
@@ -924,7 +924,8 @@ function derive(p) {
 
   const familyIncome = Number(mi.family_support_amount) || 0;
   const gigIncome = Number(mi.gig_income_amount) || 0;
-  const income = familyIncome + gigIncome;
+  const scholarshipIncome = numFrom(mi.scholarship_stipend_amount);
+  const income = familyIncome + gigIncome + scholarshipIncome;
 
   const housing = Number(ex.housing?.amount) || 0;
   const commute = Number(ex.commute?.amount) || 0;
@@ -1025,7 +1026,7 @@ function derive(p) {
   });
 
   return {
-    income, familyIncome, gigIncome, housing, commute, food, discr, bnplAmt, subsAmt,
+    income, familyIncome, gigIncome, scholarshipIncome, housing, commute, food, discr, bnplAmt, subsAmt,
     needs, wants, totalEx, surplus, actualSavings, fixedEx, variableEx,
     tNeeds, tWants, tSavings,
     savings, efMonths, efTarget, essentials,
@@ -1060,7 +1061,11 @@ function render(profile) {
 
 function renderHero(d) {
   qs('#stat-income').textContent = INR(d.income);
-  qs('#income-change').textContent = d.income > 0 ? `${d.gigIncome > 0 ? 'Family + gig' : 'Family support'}` : 'No income yet';
+  const sources = [];
+  if (d.familyIncome > 0) sources.push('Family');
+  if (d.gigIncome > 0) sources.push('Gig');
+  if (d.scholarshipIncome > 0) sources.push('Scholarship/Stipend');
+  qs('#income-change').textContent = sources.length ? sources.join(' + ') : 'No income yet';
   qs('#income-change').className = 'stat-change up';
 
   qs('#stat-spent').textContent = INR(d.totalEx);

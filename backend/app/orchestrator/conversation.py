@@ -1,14 +1,14 @@
 import json
 import re
 import time
-from groq import Groq, RateLimitError
+from openai import OpenAI, RateLimitError
 
 from app.config import get_settings
 from app.orchestrator.system_prompt import build_system_prompt
 from app.orchestrator.tools import TOOL_SCHEMAS, execute_tool
 
 _settings = get_settings()
-_client = Groq(api_key=_settings.groq_api_key)
+_client = OpenAI(api_key=_settings.openai_api_key)
 
 MAX_TOOL_ITERATIONS = 5
 _MAX_RETRIES = 1
@@ -18,12 +18,73 @@ _MAX_HISTORY_TURNS = None
 # Matches any [Memory: ...] prefix the model may generate by mimicking history.
 _MEMORY_TAG_RE = re.compile(r'^\[Memory:[^\]]*\]\s*', re.IGNORECASE)
 
+# The main conversational model reliably calls update_profile for the field it's
+# actively asking about, but often skips facts mentioned in passing (e.g. it asks
+# about commute, the user answers, the model's ratio comment references the
+# number but the tool call never fires). Rather than trust prompt instructions
+# alone, run a second, silent extraction pass — scoped to ONLY update_profile —
+# on every turn as a deterministic safety net.
+_UPDATE_PROFILE_SCHEMA = [s for s in TOOL_SCHEMAS if s["function"]["name"] == "update_profile"]
+
+_EXTRACTION_SYSTEM_PROMPT = """\
+You are a silent data-extraction pass for a financial-advisor app. You never talk to the user — you only look at their latest message and record any financial or biographical facts it contains by calling update_profile.
+
+Current profile (for field names and to avoid re-writing something already correct):
+{profile}
+
+Valid dot-path fields:
+academic.year_of_study, academic.expected_graduation_year, academic.field_of_study,
+expenses.housing.amount, expenses.housing.type, expenses.housing.family_paid_directly,
+expenses.commute.amount, expenses.commute.mode, expenses.commute.distance_km,
+expenses.food_beyond_mess, expenses.subscriptions, expenses.discretionary, expenses.split_shared_expenses,
+expenses.bnpl_usage.apps_used, expenses.bnpl_usage.typical_monthly_amount, expenses.bnpl_usage.missed_or_min_only,
+money_in.family_support_amount, money_in.family_support_regularity, money_in.gig_income_amount,
+money_in.gig_income_type, money_in.scholarship_stipend_amount, money_in.income_stability,
+safety_net.health_insurance_cover, safety_net.provided_by, safety_net.personal_savings_amount,
+safety_net.would_rely_on_if_urgent, debt, credit.cards, credit.total_limit, credit.typical_utilization_pct, goals.
+
+Rules:
+- Only extract facts EXPLICITLY stated in the user's latest message below — never infer, guess, or repeat old data.
+- A single message can contain multiple facts (e.g. two expense categories) — call update_profile once per fact.
+- If a fact corrects or adds detail to a field that already has a value, update it.
+- If the message has no extractable fact, make no tool calls at all.
+- Never write any text — only make tool calls, or nothing.
+"""
+
+
+def _extract_facts(user_message: str, financial_profile: dict) -> dict:
+    try:
+        response = _client.chat.completions.create(
+            model=_settings.openai_model,
+            messages=[
+                {"role": "system", "content": _EXTRACTION_SYSTEM_PROMPT.format(profile=json.dumps(financial_profile))},
+                {"role": "user", "content": user_message},
+            ],
+            tools=_UPDATE_PROFILE_SCHEMA,
+            tool_choice="auto",
+        )
+    except RateLimitError:
+        return financial_profile
+
+    message = response.choices[0].message
+    if not message.tool_calls:
+        return financial_profile
+
+    for tc in message.tool_calls:
+        try:
+            args = json.loads(tc.function.arguments)
+        except (json.JSONDecodeError, TypeError):
+            continue
+        _, financial_profile = execute_tool("update_profile", args, financial_profile)
+
+    return financial_profile
+
 
 def _chat_with_retry(messages: list[dict]) -> object:
     for attempt in range(_MAX_RETRIES + 1):
         try:
             return _client.chat.completions.create(
-                model=_settings.groq_model,
+                model=_settings.openai_model,
                 messages=messages,
                 tools=TOOL_SCHEMAS,
                 tool_choice="auto",
@@ -75,6 +136,7 @@ def run_turn(
 
         if not message.tool_calls:
             assistant_text = last_text or ""
+            financial_profile = _extract_facts(user_message, financial_profile)
             updated_messages = list(messages) + [
                 {"role": "user", "content": user_message},
                 {"role": "assistant", "content": assistant_text},
@@ -107,6 +169,7 @@ def run_turn(
             })
 
     fallback_text = last_text or "I'm having trouble processing that. Could you repeat your question?"
+    financial_profile = _extract_facts(user_message, financial_profile)
     updated_messages = list(messages) + [
         {"role": "user", "content": user_message},
         {"role": "assistant", "content": fallback_text},
